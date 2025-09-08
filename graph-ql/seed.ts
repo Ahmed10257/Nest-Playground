@@ -10,7 +10,7 @@ const dataSource = new DataSource({
   host: 'localhost',
   port: 5432,
   username: 'postgres',
-  password: 'postgres',
+  password: 'root',
   database: 'blog_db',
   entities: [User, Profile, Post, Tag],
   synchronize: true,
@@ -40,6 +40,7 @@ async function seed() {
 
     const profile = new Profile();
     profile.bio = faker.lorem.sentence();
+    profile.avatar = faker.image.avatar();
 
     // Save profile first
     const savedProfile = await profileRepo.save(profile);
