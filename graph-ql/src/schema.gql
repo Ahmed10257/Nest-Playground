@@ -1,0 +1,106 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input CreatePostInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateProfileInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateTagInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input CreateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+type Mutation {
+  createPost(createPostInput: CreatePostInput!): Post!
+  createProfile(createProfileInput: CreateProfileInput!): Profile!
+  createTag(createTagInput: CreateTagInput!): Tag!
+  createUser(createUserInput: CreateUserInput!): User!
+  removePost(id: Int!): Post!
+  removeProfile(id: Int!): Profile!
+  removeTag(id: Int!): Tag!
+  removeUser(id: Int!): User!
+  updatePost(updatePostInput: UpdatePostInput!): Post!
+  updateProfile(updateProfileInput: UpdateProfileInput!): Profile!
+  updateTag(updateTagInput: UpdateTagInput!): Tag!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+}
+
+type Post {
+  content: String!
+  id: Int!
+  tags: [Tag!]!
+  title: String!
+  user: User!
+}
+
+type Profile {
+  avatar: String!
+  bio: String!
+  id: Int!
+  user: User!
+}
+
+type Query {
+  hello: String!
+  post(id: Int!): Post!
+  profile(id: Int!): Profile!
+  tag(id: Int!): Tag!
+  user(id: Int!): User!
+  users: [User!]!
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+type Tag {
+  id: Int!
+  name: String!
+  posts: [Post!]!
+}
+
+input UpdatePostInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateProfileInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateTagInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input UpdateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+type User {
+  email: String!
+  id: Int!
+  posts: [Post!]
+  profile: Profile
+  role: Role!
+  username: String!
+}

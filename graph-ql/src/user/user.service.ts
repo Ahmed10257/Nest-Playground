@@ -19,8 +19,8 @@ export class UserService {
     return await this.userRepo.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    return await this.userRepo.findOneByOrFail({ id });
   }
 
   update(id: number, updateUserInput: UpdateUserInput) {

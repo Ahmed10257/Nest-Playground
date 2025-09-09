@@ -10,7 +10,6 @@ import {
 import { Post } from './post.entity';
 import { Profile } from './profile.entity';
 import { Role } from 'src/enums/role.enum';
-import { Exclude } from 'class-transformer';
 
 @ObjectType()
 @Entity()
@@ -42,12 +41,12 @@ export class User {
   @Column({ nullable: true })
   password: string;
 
-  @Field(() => Profile)
+  @Field(() => Profile, { nullable: true })
   @OneToOne(() => Profile, profile => profile.user, { cascade: true })
   @JoinColumn()
   profile: Promise<Profile>;
 
-  @Field(() => [Post])
+  @Field(() => [Post], { nullable: true })
   @OneToMany(() => Post, post => post.user)
   posts: Promise<Post[]>;
 }
