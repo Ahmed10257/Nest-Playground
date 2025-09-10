@@ -16,7 +16,7 @@ export class PostService {
   }
 
   async findAll() {
-    return await this.postRepository.find();
+    return await this.postRepository.find({ relations: ['user'] });
   }
 
   async findOne(id: number) {
