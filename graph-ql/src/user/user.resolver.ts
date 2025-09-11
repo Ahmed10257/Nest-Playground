@@ -1,11 +1,13 @@
 import { PostService } from './../post/post.service';
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, Parent } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from '../entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Post } from '../entities/post.entity';
-import { Parent, ResolveField } from '@nestjs/graphql';
+import { ResolveField } from '@nestjs/graphql';
+import { Res } from '@nestjs/common';
+import { Profile } from 'src/entities/profile.entity';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -19,7 +21,7 @@ export class UserResolver {
     return this.userService.create(createUserInput);
   }
 
-  @Query(() => [User], { name: 'users' })
+  @Query(() => [User], { name: 'users', description: 'Get all users' })
   findAll() {
     return this.userService.findAll();
   }
@@ -40,7 +42,12 @@ export class UserResolver {
   }
 
   @ResolveField(() => [Post])
-  posts(@Parent() user: User) {
-    return this.postService.findAll();
+  async posts(@Parent() user: User) {
+    return await user.posts;
+  }
+
+  @ResolveField(() => Profile)
+  async profile(@Parent() user: User) {
+    return await user.profile;
   }
 }

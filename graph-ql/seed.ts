@@ -4,65 +4,85 @@ import { User } from './src/entities/user.entity';
 import { Profile } from './src/entities/profile.entity';
 import { Post } from './src/entities/post.entity';
 import { Tag } from './src/entities/tag.entity';
+import 'dotenv/config';
 
 const dataSource = new DataSource({
   type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'postgres',
-  password: 'root',
-  database: 'blog_db',
+  url: process.env.DATABASE_URL,
   entities: [User, Profile, Post, Tag],
   synchronize: true,
 });
 
+console.log({ DATABASE_URL: process.env.DATABASE_URL });
+
 async function seed() {
   await dataSource.initialize();
 
-  const tagRepo = dataSource.getRepository(Tag);
-  const userRepo = dataSource.getRepository(User);
-  const postRepo = dataSource.getRepository(Post);
-  const profileRepo = dataSource.getRepository(Profile);
+  const userRepository = dataSource.getRepository(User);
+  const profileRepository = dataSource.getRepository(Profile);
+  const postRepository = dataSource.getRepository(Post);
+  const tagRepository = dataSource.getRepository(Tag);
 
-  // create tags
-  const tags = ['tech', 'life', 'food', 'travel'].map(name => {
-    const tag = new Tag();
-    tag.name = name;
-    return tag;
-  });
-  const savedTags = await tagRepo.save(tags);
-
-  // create users with profiles + posts
+  // Create and save tags first
+  const tags: Tag[] = [];
   for (let i = 0; i < 5; i++) {
-    const user = new User();
-    user.username = faker.internet.username();
-    user.email = faker.internet.email();
+    const tag = tagRepository.create({ name: faker.word.noun() });
+    const savedTag = await tagRepository.save(tag);
+    tags.push(savedTag);
+  }
 
-    const profile = new Profile();
-    profile.bio = faker.lorem.sentence();
-    profile.avatar = faker.image.avatar();
+  // Create users with profiles
+  for (let i = 0; i < 10; i++) {
+    // Create and save profile first
+    const profile = profileRepository.create({
+      bio: faker.lorem.sentence(),
+      avatar: faker.image.avatar(),
+    });
+    const savedProfile = await profileRepository.save(profile);
 
-    // Save profile first
-    const savedProfile = await profileRepo.save(profile);
+    // Create user
+    const user = new User({
+      username: faker.internet.username(),
+      email: faker.internet.email(),
+    });
+    const savedUser = await userRepository.save(user);
 
-    // Assign the saved profile to user
-    user.profile = Promise.resolve(savedProfile);
+    // Update user with profile relationship
+    await userRepository
+      .createQueryBuilder()
+      .relation(User, 'profile')
+      .of(savedUser)
+      .set(savedProfile);
 
-    const savedUser = await userRepo.save(user);
+    // Create posts for this user
+    for (let j = 0; j < 10; j++) {
+      const post = postRepository.create({
+        title: faker.lorem.words(5),
+        content: faker.lorem.paragraph(),
+      });
+      const savedPost = await postRepository.save(post);
 
-    for (let j = 0; j < 3; j++) {
-      const post = new Post();
-      post.title = faker.lorem.words(5);
-      post.content = faker.lorem.paragraphs(2);
-      post.user = Promise.resolve(savedUser);
-      post.tags = Promise.resolve(faker.helpers.arrayElements(savedTags, 2));
-      await postRepo.save(post);
+      // Set user relationship
+      await postRepository
+        .createQueryBuilder()
+        .relation(Post, 'user')
+        .of(savedPost)
+        .set(savedUser);
+
+      // Set tags relationship
+      await postRepository
+        .createQueryBuilder()
+        .relation(Post, 'tags')
+        .of(savedPost)
+        .add(faker.helpers.arrayElements(tags));
     }
   }
 
-  console.log('✅ Database seeded');
+  console.log('Database seeding completed!');
   await dataSource.destroy();
-  process.exit(0);
 }
 
-void seed();
+seed().catch(error => {
+  console.error('Error seeding database:', error);
+  process.exit(1);
+});
