@@ -6,7 +6,6 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { Post } from '../entities/post.entity';
 import { ResolveField } from '@nestjs/graphql';
-import { Res } from '@nestjs/common';
 import { Profile } from 'src/entities/profile.entity';
 
 @Resolver(() => User)
@@ -16,7 +15,7 @@ export class UserResolver {
     private readonly postService: PostService,
   ) {}
 
-  @Mutation(() => User)
+  @Mutation(() => User, { description: 'Create a new user' })
   createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.userService.create(createUserInput);
   }
@@ -26,7 +25,7 @@ export class UserResolver {
     return this.userService.findAll();
   }
 
-  @Query(() => User, { name: 'user' })
+  @Query(() => User, { name: 'user', description: 'Get user by id' })
   findOne(@Args('id', { type: () => Int }) id: number) {
     return this.userService.findOne(id);
   }
@@ -36,7 +35,7 @@ export class UserResolver {
     return this.userService.update(updateUserInput.id, updateUserInput);
   }
 
-  @Mutation(() => User)
+  @Mutation(() => Boolean)
   removeUser(@Args('id', { type: () => Int }) id: number) {
     return this.userService.remove(id);
   }

@@ -11,8 +11,9 @@ export class UserService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {}
 
-  create(createUserInput: CreateUserInput) {
-    return 'This action adds a new user';
+  async create(createUserInput: CreateUserInput) {
+    const user = this.userRepo.create(createUserInput);
+    return await this.userRepo.save(user);
   }
 
   async findAll() {
@@ -23,11 +24,15 @@ export class UserService {
     return await this.userRepo.findOneByOrFail({ id });
   }
 
-  update(id: number, updateUserInput: UpdateUserInput) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserInput: UpdateUserInput) {
+    const user = await this.userRepo.findOneByOrFail({ id });
+    return await this.userRepo.save(
+      new User(Object.assign(user, updateUserInput)),
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const result = await this.userRepo.delete(id);
+    return result.affected === 1;
   }
 }
